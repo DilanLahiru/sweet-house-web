@@ -1,14 +1,14 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import Banner1 from "@/assets/Poster-1.jpeg";
-import Banner2 from "@/assets/Poster-2.jpeg";
-import Banner3 from "@/assets/Poster-3.jpeg";
-import Banner4 from "@/assets/Poster-4.jpeg";
-import Banner5 from "@/assets/Poster-5.jpeg";
-import Banner6 from "@/assets/Poster-6.jpeg";
-import Banner7 from "@/assets/Poster-7.jpeg";
-import Banner8 from "@/assets/Poster-8.jpeg";
-import Banner9 from "@/assets/Poster-9.jpeg";
+import Banner1 from "../assets/Poster-1.jpeg";
+import Banner2 from "../assets/Poster-2.jpeg";
+import Banner3 from "../assets/Poster-3.jpeg";
+import Banner4 from "../assets/Poster-4.jpeg";
+import Banner5 from "../assets/Poster-5.jpeg";
+import Banner6 from "../assets/Poster-6.jpeg";
+import Banner7 from "../assets/Poster-7.jpeg";
+import Banner8 from "../assets/Poster-8.jpeg";
+import Banner9 from "../assets/Poster-9.jpeg";
 
 interface ProductImage {
   id: number;
