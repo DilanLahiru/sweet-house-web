@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
-import f1 from "../assets/factory-1.jpg";
-import f2 from "../assets/factory-2.jpg";
-import f3 from "../assets/factory-5.jpg";
-import f4 from "../assets/factory-4.jpg";
+import f1 from "@/assets/factory1.jpg";
+import f2 from "@/assets/factory2.jpg";
+import f3 from "@/assets/factory5.jpg";
+import f4 from "@/assets/factory4.jpg";
 
 export const Factory = () => {
   return (
