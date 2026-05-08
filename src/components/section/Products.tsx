@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import toffee from "../assets/Item-5.jpeg";
-import dodol from "../assets/Item-4.jpeg";
-import kokis from "../assets/Item-6.jpeg";
-import aluwa from "../assets/Item-1.jpeg";
-import textureBg from "../assets/texture-bg.jpg";
+import toffee from "@/assets/Item5.jpeg";
+import dodol from "@/assets/Item4.jpeg";
+import kokis from "@/assets/Item6.jpeg";
+import aluwa from "@/assets/Item1.jpeg";
+import textureBg from "@/assets/textureBg.jpg";
 
 const products = [
   { img: toffee, name: "Kiri Toffee", tag: "Bestseller", desc: "Slow-cooked milk caramel with cashew shards.", price: "LKR 850", tone: "bg-accent text-accent-foreground" },

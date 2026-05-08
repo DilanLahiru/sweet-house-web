@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart, Sparkles, ArrowRight } from "lucide-react";
-import Item1 from "../assets/Item-1.jpeg";
-import Item2 from "../assets/Item-2.jpeg";
-import Item3 from "../assets/Item-3.jpeg";
-import Item4 from "../assets/Item-4.jpeg";
-import Item5 from "../assets/Item-5.jpeg";
-import Item6 from "../assets/Item-6.jpeg";
-import Item7 from "../assets/Item-7.jpeg";
-import Item8 from "../assets/Item-8.jpeg";
+import Item1 from "@/assets/Item1.jpeg";
+import Item2 from "@/assets/Item2.jpeg";
+import Item3 from "@/assets/Item3.jpeg";
+import Item4 from "@/assets/Item4.jpeg";
+import Item5 from "@/assets/Item5.jpeg";
+import Item6 from "@/assets/Item6.jpeg";
+import Item7 from "@/assets/Item7.jpeg";
+import Item8 from "@/assets/Item8.jpeg";
 
 const products = [
   {

@@ -3,8 +3,9 @@ import { Environment, Float } from "@react-three/drei";
 import { useRef, Suspense, useEffect } from "react";
 import * as THREE from "three";
 import { TextureLoader } from "three";
-import jarImg from "../assets/hero-jar.png";
-import textureBg from "../assets/texture-bg.jpg";
+
+import jarImg from "@/assets/jarBottel.png";
+import textureBg from "@/assets/textureBg.jpg";
 
 const scrollYRef = { current: 0 };
 
