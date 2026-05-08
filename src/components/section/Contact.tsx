@@ -6,8 +6,8 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Visit",
-    line1: "No. 14, Kandy Road",
-    line2: "Peradeniya, Sri Lanka",
+    line1: "Kalutara-Matugama Road",
+    line2: "Dodangoda, Sri Lanka",
   },
   {
     icon: Clock,
