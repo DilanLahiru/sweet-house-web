@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import Banner1 from "@/assets/Poster-1.jpg";
+import Banner1 from "@/assets/Poster-1.jpeg";
 import Banner2 from "@/assets/Poster-2.jpeg";
 import Banner3 from "@/assets/Poster-3.jpeg";
 import Banner4 from "@/assets/Poster-4.jpeg";
