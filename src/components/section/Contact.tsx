@@ -1,6 +1,8 @@
 ﻿import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { MapPin, Clock, Phone, Mail, ArrowRight } from "lucide-react";
+import textureBg from "@/assets/textureBg.jpg";
+
 
 const contactInfo = [
   {
@@ -18,7 +20,7 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Contact",
-    line1: "+94 77 910 4236",
+    line1: "034 229 4383",
     line2: "sandamalisweethouse@gmail.com",
   },
 ];
@@ -39,6 +41,10 @@ export const Contact = () => {
       id="contact"
       className="relative py-28 md:py-40 bg-cocoa text-primary-foreground overflow-hidden"
     >
+      <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
+                    style={{ backgroundImage: `url(${textureBg})`, backgroundSize: "cover" }}
+                    aria-hidden
+            />
       {/* Animated background elements */}
       <motion.div
         animate={{ y: [0, 20, 0] }}

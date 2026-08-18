@@ -1,188 +1,102 @@
-import { useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Sparkles, ArrowRight } from "lucide-react";
-import Item1 from "@/assets/Item1.jpeg";
-import Item2 from "@/assets/Item2.jpeg";
-import Item3 from "@/assets/Item3.jpeg";
-import Item4 from "@/assets/Item4.jpeg";
-import Item5 from "@/assets/Item5.jpeg";
-import Item6 from "@/assets/Item6.jpeg";
-import Item7 from "@/assets/Item7.jpeg";
-import Item8 from "@/assets/Item8.jpeg";
+﻿import { useRef, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Loader2 } from "lucide-react";
+import { baseUrl, API_PATH } from "@/utils/baseUrl";
 
-const products = [
-  {
-    id: 1,
-    name: "Coconut Toffee",
-    price: "Rs. 10",
-    weight: "220g",
-    description: "Colorful coconut toffee with vibrant flavors",
-    image: Item1,
-    color: "from-pink-400 to-yellow-400",
-    badge: "Bestseller",
-  },
-  {
-    id: 2,
-    name: "Peni Kaju",
-    price: "Rs. 10",
-    weight: "220g",
-    description: "Mixed nuts and grains traditional sweet",
-    image: Item2,
-    color: "from-orange-400 to-red-500",
-    badge: "Premium",
-  },
-  {
-    id: 3,
-    name: "Kiri Aluwa",
-    price: "Rs. 10",
-    weight: "270g",
-    description: "Creamy milk-based confectionery",
-    image: Item3,
-    color: "from-yellow-100 to-orange-200",
-    badge: "Classic",
-  },
-  {
-    id: 4,
-    name: "Gingelly Ball",
-    price: "Rs. 10",
-    weight: "220g",
-    description: "Sesame seed traditional balls",
-    image: Item4,
-    color: "from-amber-400 to-orange-500",
-    badge: "Artisan",
-  },
-  {
-    id: 5,
-    name: "Milk Toffee",
-    price: "Rs. 20",
-    weight: "260g",
-    description: "Rich and creamy milk toffee",
-    image: Item5,
-    color: "from-yellow-500 to-orange-600",
-    badge: "Bestseller",
-  },
-  {
-    id: 6,
-    name: "Dates Toffee",
-    price: "Rs. 20",
-    weight: "450g",
-    description: "Premium dates and toffee blend",
-    image: Item6,
-    color: "from-orange-600 to-red-700",
-    badge: "Premium",
-  },
-  {
-    id: 7,
-    name: "Layer Toffee",
-    price: "Rs. 10",
-    weight: "300g",
-    description: "Multi-layered toffee delight",
-    image: Item7,
-    color: "from-orange-400 to-red-600",
-    badge: "New",
-  },
-  {
-    id: 8,
-    name: "Rulan Toffee",
-    price: "Rs. 10",
-    weight: "220g",
-    description: "Traditional Rulan toffee specialty",
-    image: Item8,
-    color: "from-yellow-600 to-orange-700",
-    badge: "Traditional",
-  },
+interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+  weight: number;
+  tags?: string[];
+}
+
+const CARD_GRADIENTS = [
+  "from-pink-400 to-yellow-400",
+  "from-orange-400 to-red-500",
+  "from-yellow-100 to-orange-200",
+  "from-amber-400 to-orange-500",
+  "from-yellow-500 to-orange-600",
+  "from-orange-600 to-red-700",
+  "from-orange-400 to-red-600",
+  "from-yellow-600 to-orange-700",
 ];
 
 const PremiumProductCard = ({
   product,
   index,
 }: {
-  product: (typeof products)[0];
+  product: Product;
   index: number;
 }) => {
-  const [isWishlisted, setIsWishlisted] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const badge = product.tags?.[0] ?? "";
+  const gradient = CARD_GRADIENTS[index % CARD_GRADIENTS.length];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      viewport={{ once: false, margin: "-100px" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.5, delay: index * 0.07 }}
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       className="group relative rounded-2xl overflow-hidden cursor-pointer h-80 md:h-96 shadow-warm"
     >
       {/* Full image background */}
-      <motion.img
-        src={product.image}
-        alt={product.name}
-        className="absolute inset-0 w-full h-full object-cover"
-        animate={{ scale: isHovered ? 1.1 : 1 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-      />
+      {product.image ? (
+        <motion.img
+          src={product.image}
+          alt={product.name}
+          className="absolute inset-0 w-full h-full object-cover"
+          animate={{ scale: isHovered ? 1.1 : 1 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        />
+      ) : (
+        <div className={`absolute inset-0 bg-gradient-to-br ${gradient}`} />
+      )}
 
-      {/* Dark overlay that darkens only the bottom on hover */}
+      {/* Dark overlay */}
       <motion.div
-        animate={{
-          opacity: isHovered ? 0.95 : 0.3,
-        }}
+        animate={{ opacity: isHovered ? 0.95 : 0.3 }}
         transition={{ duration: 0.3 }}
         className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent"
       />
 
       {/* Badge */}
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-        className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-black bg-opacity-80 text-white text-xs font-medium font-sans tracking-wider z-10"
-      >
-        {product.badge}
-      </motion.div>
+      {badge && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.07 + 0.2 }}
+          className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-black/80 text-white text-xs font-medium tracking-wider z-10 capitalize"
+        >
+          {badge}
+        </motion.div>
+      )}
 
-      {/* Wishlist Button */}
-      {/* <motion.button
-        whileHover={{ scale: 1.15 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsWishlisted(!isWishlisted)}
-        className="absolute top-4 right-4 p-2.5 rounded-full bg-white/90 backdrop-blur-sm hover:bg-white transition-all shadow-lg hover:shadow-xl z-10"
-      >
-        <Heart
-          className={`w-5 h-5 transition-all ${
-            isWishlisted ? "fill-red-500 text-red-500" : "text-gray-700"
-          }`}
-          strokeWidth={2}
-        />
-      </motion.button> */}
-
-      {/* Content overlay - positioned at bottom with gradient background */}
+      {/* Content overlay */}
       <motion.div
-        animate={{
-          y: isHovered ? 0 : 80,
-          opacity: isHovered ? 1 : 0.7,
-        }}
+        animate={{ y: isHovered ? 0 : 80, opacity: isHovered ? 1 : 0.7 }}
         transition={{ duration: 0.3 }}
         className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6 md:p-7 z-10"
       >
-        {/* Price */}
-        {/* <motion.p className="text-white font-display text-2xl md:text-3xl font-bold">
-          {product.price}
-        </motion.p> */}
-
-        {/* Name */}
         <motion.h3 className="font-display font-bold text-lg md:text-xl text-white">
           {product.name}
         </motion.h3>
-
-        {/* Description */}
         <motion.p className="text-white/80 text-sm leading-relaxed mb-4 line-clamp-2">
           {product.description}
         </motion.p>
-        {/* Weight */}
-        <motion.p className="text-white/80 text-xs tracking-widest uppercase">
-          {product.weight}
-        </motion.p>
+        <div className="flex items-center justify-between">
+          <motion.p className="text-white/70 text-xs tracking-widest uppercase">
+            {product.weight}g
+          </motion.p>
+          <motion.p className="text-white font-bold text-sm">
+            Rs. {product.price}
+          </motion.p>
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -190,21 +104,54 @@ const PremiumProductCard = ({
 
 export const ProductShowcase = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedTag, setSelectedTag] = useState("all");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${baseUrl}${API_PATH.PRODUCT.LOAD_ALL}`);
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data: Product[] = await res.json();
+        setProducts(data);
+      } catch (err) {
+        setError("Could not load products. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // Derive unique tags from all products
+  const allTags = Array.from(
+    new Set(products.flatMap((p) => p.tags ?? []))
+  );
 
   const categories = [
-    { id: "all", label: "All Products", count: 8 },
-    { id: "bestseller", label: "Bestsellers", count: 2 },
-    { id: "premium", label: "Premium", count: 2 },
-    { id: "new", label: "New Arrivals", count: 1 },
+    { id: "all", label: "All Products", count: products.length },
+    ...allTags.map((tag) => ({
+      id: tag,
+      label: tag.charAt(0).toUpperCase() + tag.slice(1),
+      count: products.filter((p) => p.tags?.includes(tag)).length,
+    })),
   ];
+
+  const filtered =
+    selectedTag === "all"
+      ? products
+      : products.filter((p) => p.tags?.includes(selectedTag));
 
   return (
     <section
       ref={sectionRef}
       className="relative min-h-screen py-28 md:py-40 bg-gradient-to-b from-background via-secondary/5 to-background overflow-hidden"
     >
-      {/* Animated background elements */}
+      {/* Animated background blobs */}
       <motion.div
         animate={{ y: [0, 40, 0] }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
@@ -217,7 +164,7 @@ export const ProductShowcase = () => {
       />
 
       <div className="container relative">
-        {/* Hero Section */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -263,72 +210,92 @@ export const ProductShowcase = () => {
           </motion.p>
         </motion.div>
 
-        {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-3 mb-20"
-        >
-          {categories.map((cat, idx) => (
-            <motion.button
-              key={cat.id}
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
-                selectedCategory === cat.id
-                  ? "bg-accent text-white shadow-lg shadow-accent/30"
-                  : "bg-white/50 border border-accent/20 text-primary hover:border-accent/40 hover:bg-white/70"
-              }`}
-            >
-              {cat.label}
-              <span
-                className={`text-xs px-2 py-0.5 rounded-full ${
-                  selectedCategory === cat.id
-                    ? "bg-white/20"
-                    : "bg-accent/10 text-accent"
+        {/* Category Filter â€” only show when data is loaded */}
+        {!loading && !error && categories.length > 1 && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap justify-center gap-3 mb-16"
+          >
+            {categories.map((cat) => (
+              <motion.button
+                key={cat.id}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setSelectedTag(cat.id)}
+                className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2 ${
+                  selectedTag === cat.id
+                    ? "bg-accent text-white shadow-lg shadow-accent/30"
+                    : "bg-white/50 border border-accent/20 text-primary hover:border-accent/40 hover:bg-white/70"
                 }`}
               >
-                {cat.count}
-              </span>
-            </motion.button>
-          ))}
-        </motion.div>
+                {cat.label}
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    selectedTag === cat.id
+                      ? "bg-white/20"
+                      : "bg-accent/10 text-accent"
+                  }`}
+                >
+                  {cat.count}
+                </span>
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
 
-        {/* Products Grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 mb-20"
-        >
-          {products.map((product, index) => (
-            <PremiumProductCard key={product.id} product={product} index={index} />
-          ))}
-        </motion.div>
-
-        {/* CTA Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5 }}
-          viewport={{ once: false, margin: "-100px" }}
-          className="relative rounded-3xl overflow-hidden"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/10 to-transparent" />
-          <div className="absolute inset-0 border border-accent/20 rounded-3xl" />
-
-          <div className="relative px-8 md:px-12 py-12 md:py-16 text-center">
-            <h3 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
-              Create Your Perfect Bundle
-            </h3>
-            <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto italic font-serif">
-              Mix and match your favorite sweets to create a personalized
-              collection. Perfect for gifts or sharing with loved ones.
-            </p>
+        {/* States: loading / error / empty / grid */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-32 gap-4 text-muted-foreground">
+            <Loader2 className="w-10 h-10 animate-spin text-accent" />
+            <p className="text-sm">Loading productsâ€¦</p>
           </div>
-        </motion.div>
+        ) : error ? (
+          <div className="text-center py-32 text-red-500">{error}</div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-32 text-muted-foreground">
+            No products found in this category.
+          </div>
+        ) : (
+          <motion.div
+            layout
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 mb-20"
+          >
+            <AnimatePresence mode="popLayout">
+              {filtered.map((product, index) => (
+                <PremiumProductCard
+                  key={product._id}
+                  product={product}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {/* CTA */}
+        {!loading && !error && (
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            viewport={{ once: false, margin: "-100px" }}
+            className="relative rounded-3xl overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/10 to-transparent" />
+            <div className="absolute inset-0 border border-accent/20 rounded-3xl" />
+            <div className="relative px-8 md:px-12 py-12 md:py-16 text-center">
+              <h3 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
+                Create Your Perfect Bundle
+              </h3>
+              <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto italic font-serif">
+                Mix and match your favorite sweets to create a personalized
+                collection. Perfect for gifts or sharing with loved ones.
+              </p>
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );

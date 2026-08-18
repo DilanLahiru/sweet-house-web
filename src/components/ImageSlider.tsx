@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from "react-redux";
+import { loadAllPosters } from "@/services/posterSlice";
+
 import Banner1 from '@/assets/poster1.jpg';
 import Banner2 from '@/assets/Poster2.jpeg';
 import Banner3 from '@/assets/Poster3.jpeg';
@@ -18,6 +21,15 @@ interface ProductImage {
 }
 
 const ImageSlider = () => {
+  const dispatch = useDispatch();
+  const posters = useSelector((state: any) => state.poster.posters);
+
+  useEffect(() => {
+    const posters = dispatch(loadAllPosters());
+    console.log(posters);
+  }, [dispatch]);
+
+
   const products: ProductImage[] = [
     {
       id: 1,
@@ -31,48 +43,48 @@ const ImageSlider = () => {
       title: 'Coconut Candy',
       subtitle: 'Pure Natural Sweetness',
     },
-    {
-      id: 3,
-      url: Banner3,
-      title: 'Milk Toffee',
-      subtitle: 'Heritage Recipe Since 1987',
-    },
-    {
-      id: 4,
-      url: Banner4,
-      title: 'Mixed Sweets',
-      subtitle: 'Special Collection',
-    },
-    {
-      id: 5,
-      url: Banner5,
-      title: 'Premium Assortment',
-      subtitle: 'Best Quality Selection',
-    },
-    {
-      id: 6,
-      url: Banner6,
-      title: 'Deluxe Chocolate',
-      subtitle: 'Rich & Indulgent Flavor',
-    },
-    {
-      id: 7,
-      url: Banner7,
-      title: 'Fruit Candies',
-      subtitle: 'Natural Ingredients',
-    },
-    {
-      id: 8,
-      url: Banner8,
-      title: 'Nutty Treats',
-      subtitle: 'Crunchy Delight',
-    },
-    {
-      id: 9,
-      url: Banner9,
-      title: 'Special Edition',
-      subtitle: 'Limited Time Offering',
-    },
+    // {
+    //   id: 3,
+    //   url: Banner3,
+    //   title: 'Milk Toffee',
+    //   subtitle: 'Heritage Recipe Since 1987',
+    // },
+    // {
+    //   id: 4,
+    //   url: Banner4,
+    //   title: 'Mixed Sweets',
+    //   subtitle: 'Special Collection',
+    // },
+    // {
+    //   id: 5,
+    //   url: Banner5,
+    //   title: 'Premium Assortment',
+    //   subtitle: 'Best Quality Selection',
+    // },
+    // {
+    //   id: 6,
+    //   url: Banner6,
+    //   title: 'Deluxe Chocolate',
+    //   subtitle: 'Rich & Indulgent Flavor',
+    // },
+    // {
+    //   id: 7,
+    //   url: Banner7,
+    //   title: 'Fruit Candies',
+    //   subtitle: 'Natural Ingredients',
+    // },
+    // {
+    //   id: 8,
+    //   url: Banner8,
+    //   title: 'Nutty Treats',
+    //   subtitle: 'Crunchy Delight',
+    // },
+    // {
+    //   id: 9,
+    //   url: Banner9,
+    //   title: 'Special Edition',
+    //   subtitle: 'Limited Time Offering',
+    // },
   ];
 
   const [hoveredId, setHoveredId] = useState<number | null>(null);
@@ -83,22 +95,22 @@ const ImageSlider = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setDirection(1);
-      setCurrentIndex((prev) => (prev + 1) % products.length);
+      setCurrentIndex((prev) => (prev + 1) % posters.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [products.length]);
+  }, [posters.length]);
 
   const handleNext = () => {
     setDirection(1);
-    setCurrentIndex((prev) => (prev + 1) % products.length);
+    setCurrentIndex((prev) => (prev + 1) % posters.length);
   };
 
   const handlePrev = () => {
     setDirection(-1);
-    setCurrentIndex((prev) => (prev - 1 + products.length) % products.length);
+    setCurrentIndex((prev) => (prev - 1 + posters.length) % posters.length);
   };
 
-  const currentProduct = products[currentIndex];
+  const currentProduct = posters[currentIndex];
 
   // Floating animation keyframes
   const floatingVariants: any = {
@@ -159,7 +171,7 @@ const ImageSlider = () => {
             Discover our finest handcrafted sweets
           </p>
           <div className="flex gap-2 justify-center mt-6">
-            {products.map((_, index) => (
+            {posters.map((_, index) => (
               <motion.button
                 key={index}
                 onClick={() => {
@@ -206,13 +218,13 @@ const ImageSlider = () => {
             >
               <div className="relative w-full h-full flex items-center justify-center">
                 <motion.img
-                  src={currentProduct.url}
-                  alt={currentProduct.title}
+                  src={currentProduct?.image}
+                  alt={currentProduct?.name}
                   className="max-w-full max-h-full object-contain drop-shadow-2xl"
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.8, ease: 'easeOut' }}
-                  onMouseEnter={() => setHoveredId(currentProduct.id)}
+                  onMouseEnter={() => setHoveredId(currentProduct?.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 />
 
@@ -247,10 +259,10 @@ const ImageSlider = () => {
                 animate="visible"
               >
                 <h3 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">
-                  {currentProduct.title}
+                  {currentProduct?.name}
                 </h3>
                 <p className="text-lg text-gold mb-6">
-                  {currentProduct.subtitle}
+                  {currentProduct?.description}
                 </p>
 
                 {/* Progress Bar */}
@@ -298,7 +310,7 @@ const ImageSlider = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
           >
-            {currentIndex + 1} / {products.length}
+            {currentIndex + 1} / {posters.length}
           </motion.div>
         </div>
       </div>

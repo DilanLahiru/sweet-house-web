@@ -24,8 +24,8 @@ export const Footer = () => {
             <ul className="space-y-2">
               <li className="text-xs tracking-widest uppercase text-accent mb-2">Connect</li>
               <li><a href="#" className="hover:text-accent transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-accent transition-colors">Facebook</a></li>
-              <li><a href="#contact" className="hover:text-accent transition-colors">WhatsApp</a></li>
+              <li><a href="https://web.facebook.com/people/%E0%B7%83%E0%B6%B3%E0%B6%B8%E0%B7%8F%E0%B6%BD%E0%B7%92-%E0%B7%83%E0%B7%8A%E0%B7%80%E0%B7%93%E0%B6%A7%E0%B7%8A-%E0%B7%84%E0%B7%80%E0%B7%94%E0%B7%83%E0%B7%8A-Sandamali-Sweet-House/100063798800002/" className="hover:text-accent transition-colors">Facebook</a></li>
+              <li><a href="https://wa.me/94764802025" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">WhatsApp</a></li>
             </ul>
           </div>
 

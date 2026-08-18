@@ -8,6 +8,7 @@ import { Process } from "@/components/section/Process";
 import { Reviews } from "@/components/section/Reviews";
 import { Contact } from "@/components/section/Contact";
 import { Footer } from "@/components/section/Footer";
+import { Gallery } from "@/components/section/Gallery";
 import { useEffect } from "react";
 
 const Index = () => {
@@ -34,6 +35,7 @@ const Index = () => {
       <Story />
       <Factory />
       {/* <Process /> */}
+      <Gallery />
       <Reviews />
       <Contact />
       <Footer />

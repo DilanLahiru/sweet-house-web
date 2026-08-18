@@ -1,9 +1,13 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import toffee from "@/assets/Item5.jpeg";
 import dodol from "@/assets/Item4.jpeg";
 import kokis from "@/assets/Item6.jpeg";
 import aluwa from "@/assets/Item1.jpeg";
 import textureBg from "@/assets/textureBg.jpg";
+import { useDispatch, useSelector } from "react-redux";
+import { loadAllProducts, selectProducts } from "@/services/productSlice";
+
 
 const products = [
   { img: toffee, name: "Kiri Toffee", tag: "Bestseller", desc: "Slow-cooked milk caramel with cashew shards.", price: "LKR 850", tone: "bg-accent text-accent-foreground" },
@@ -13,6 +17,10 @@ const products = [
 ];
 
 export const Products = () => {
+  const dispatch = useDispatch();
+  const products = useSelector(selectProducts) as typeof products[0][];
+
+  useEffect(() => {dispatch(loadAllProducts());}, [dispatch]);
   return (
     <section id="products" className="relative py-28 md:py-40 bg-cocoa text-primary-foreground overflow-hidden">
       <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none"
@@ -71,7 +79,7 @@ export const Products = () => {
             >
               <motion.div className="relative aspect-square overflow-hidden">
                 <motion.img
-                  src={p.img}
+                  src={p.image}
                   alt={p.name}
                   whileHover={{ scale: 1.15 }}
                   transition={{ duration: 0.6, ease: "easeOut" }}
@@ -83,9 +91,16 @@ export const Products = () => {
                 <motion.span
                   initial={{ opacity: 0.9, y: 0 }}
                   whileHover={{ y: -4 }}
-                  className={`absolute top-4 left-4 ${p.tone} text-[10px] tracking-[0.2em] uppercase font-semibold px-3 py-1.5 rounded-full shadow-soft`}
+                  className={`absolute top-4 left-4 ${p.tone} text-[10px] tracking-[0.2em] uppercase font-semibold px-3 py-1.5 rounded-full shadow-soft bg-black bg-opacity-80 text-white`}
                 >
-                  {p.tag}
+                  {p.tags.slice(0, 2).map((tag) => (tag)).join(", ")}
+                </motion.span>
+                <motion.span
+                  initial={{ opacity: 0.9, y: 0 }}
+                  whileHover={{ y: -4 }}
+                  className={`absolute top-4  right-4 ${p.tone} text-[10px] tracking-[0.2em] uppercase font-semibold px-3 py-1.5 rounded-full shadow-soft bg-black bg-opacity-80 text-white`}
+                >
+                  {p.weight}G
                 </motion.span>
               </motion.div>
               <motion.div className="p-6">
@@ -96,9 +111,8 @@ export const Products = () => {
                   >
                     {p.name}
                   </motion.h3>
-                  {/* <span className="text-sm font-semibold text-accent">{p.price}</span> */}
                 </motion.div>
-                <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{p.desc}</p>
+                <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{p.description}</p>
               </motion.div>
             </motion.article>
           ))}

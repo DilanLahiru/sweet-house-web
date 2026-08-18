@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
-import factory2 from "@/assets/heritage.jpg";
+import factory2 from "@/assets/heritage.png";
 
 const milestones = [
   { year: "1988", title: "A home business is born", text: "K.D. Senaratne starts Sandamali Sweets from home with Rs. 1000 capital, producing various types of traditional sweets." },

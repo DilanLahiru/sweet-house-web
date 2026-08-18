@@ -1,107 +1,107 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Star } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { loadAllReviews, selectReviews } from "@/services/reviewSlice";
 
-const reviews = [
-  {
-    id: 1,
-    name: "Malini Perera",
-    role: "Homemaker",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-    rating: 5,
-    text: "My family has been enjoying Sandamali sweets for generations. The quality and taste never compromise. Simply the best!",
-    featured: false,
-  },
-  {
-    id: 2,
-    name: "Ajith Rajapakse",
-    role: "Business Owner",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-    rating: 5,
-    text: "We gift Sandamali sweets to our clients regularly. It's always appreciated. The authentic taste speaks volumes about the brand.",
-    featured: false,
-  },
-  {
-    id: 3,
-    name: "Chamari Silva",
-    role: "Event Organizer",
-    image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=400&h=400&fit=crop",
-    rating: 5,
-    text: "Consistently excellent! From festivals to corporate events, Sandamali delivers perfection every time. Trustworthy and reliable.",
-    featured: false,
-  },
+const AVATAR_GRADIENTS = [
+  "from-amber-700 to-orange-600",
 ];
 
-const ReviewCard = ({ review, index }: { review: typeof reviews[0]; index: number }) => {
+const ReviewCard = ({ review, index }) => {
+  const gradient = AVATAR_GRADIENTS[review.name.charCodeAt(0) % AVATAR_GRADIENTS.length];
+  const initials = review.name
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      viewport={{ once: false, margin: "-100px" }}
-      whileHover={{ y: -8 }}
-      className={`group relative rounded-2xl border border-border/60 p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
-        review.featured
-          ? "lg:col-span-1 bg-gradient-to-br from-accent/10 via-card to-card shadow-warm border-accent/40"
-          : "bg-card/50 hover:shadow-lg hover:border-accent/20"
-      }`}
+      transition={{ duration: 0.55, delay: index * 0.08 }}
+      viewport={{ once: false, margin: "-80px" }}
+      whileHover={{ y: -6 }}
+      className="group relative h-full"
     >
-      {/* Background gradient on hover */}
-      <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-accent/5 to-transparent pointer-events-none" />
+      {/* Glowing gradient border on hover */}
+      <div
+        className={`absolute -inset-px rounded-3xl bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-60 transition-opacity duration-500 blur-sm pointer-events-none`}
+      />
 
-      <div className="relative z-10">
-        {/* Stars */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: index * 0.1 + 0.2 }}
-          className="flex gap-1 mb-4"
-        >
-          {Array.from({ length: review.rating }).map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              transition={{ duration: 0.3, delay: i * 0.05 }}
-            >
-              <Star className="w-4 h-4 fill-accent text-accent" />
-            </motion.div>
-          ))}
-        </motion.div>
+      <div className="relative h-full flex flex-col rounded-3xl bg-card border border-border/50 p-6 md:p-7 overflow-hidden shadow-sm group-hover:shadow-2xl transition-shadow duration-500">
+        {/* Decorative large quote mark */}
+        <span className="absolute -top-3 -left-1 text-[110px] font-serif leading-none select-none pointer-events-none text-amber-400/10">
+          &ldquo;
+        </span>
 
-        {/* Review Text */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: index * 0.1 + 0.1 }}
-          className="text-muted-foreground mb-6 leading-relaxed italic text-sm md:text-base"
-        >
-          "{review.text}"
-        </motion.p>
-
-        {/* Author Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: index * 0.1 + 0.15 }}
-          className="flex items-center gap-4 pt-6 border-t border-border/40"
-        >
-          
-          <div>
-            <p className="font-display font-semibold text-sm text-primary">{review.name}</p>
+        {/* Top row: stars + rating number */}
+        <div className="relative z-10 flex items-center justify-between mb-5">
+          <div className="flex gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ scale: 0, rotate: -20 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.08 + i * 0.06 }}
+                viewport={{ once: false }}
+              >
+                <Star
+                  className={`w-4 h-4 transition-colors duration-200 ${
+                    i < review.rating
+                      ? "fill-amber-400 text-amber-400"
+                      : "fill-muted/40 text-muted/40"
+                  }`}
+                />
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
+          <span
+            className={`text-xs font-bold px-2.5 py-1 rounded-full bg-gradient-to-r ${gradient} text-white shadow-sm`}
+          >
+            {review.rating}.0
+          </span>
+        </div>
+
+        {/* Comment */}
+        <p className="relative z-10 flex-1 text-foreground/75 leading-relaxed text-sm md:text-[0.9375rem] italic mb-6">
+          &ldquo;{review.comment}&rdquo;
+        </p>
+
+        {/* Gradient divider */}
+        <div className="relative z-10 h-px bg-gradient-to-r from-transparent via-border/80 to-transparent mb-5" />
+
+        {/* Author row */}
+        <div className="relative z-10 flex items-center gap-3">
+          {/* Avatar */}
+          <div
+            className={`w-10 h-10 shrink-0 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center text-white text-xs font-bold shadow-md ring-2 ring-white/10`}
+          >
+            {initials}
+          </div>
+
+          <div className="min-w-0">
+            <p className="font-semibold text-sm text-foreground truncate">{review.name}</p>
+            <p className="text-xs text-muted-foreground">Verified Customer</p>
+          </div>
+        </div>
       </div>
     </motion.div>
   );
 };
 
 export const Reviews = () => {
+  const dispatch = useDispatch();
+  const reviews = useSelector(selectReviews) as typeof reviews[0][];
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
+
+  useEffect(() => {dispatch(loadAllReviews());}, [dispatch]);
 
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
@@ -155,22 +155,11 @@ export const Reviews = () => {
           </motion.p>
         </motion.div>
 
-        {/* Featured Reviews */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-10">
-          {reviews
-            .filter((r) => r.featured)
-            .map((review, index) => (
-              <ReviewCard key={review.id} review={review} index={index} />
-            ))}
-        </div>
-
-        {/* Other Reviews */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {reviews
-            .filter((r) => !r.featured)
-            .map((review, index) => (
-              <ReviewCard key={review.id} review={review} index={index + 2} />
-            ))}
+        {/* Reviews grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+          {reviews.map((review, index) => (
+            <ReviewCard key={review._id} review={review} index={index} />
+          ))}
         </div>
         
       </div>
