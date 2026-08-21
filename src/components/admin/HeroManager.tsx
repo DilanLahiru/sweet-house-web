@@ -11,9 +11,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-//import { heroApi, uploadApi } from '@/services/api';
 import { toast } from 'sonner';
 import { Edit, Upload } from 'lucide-react';
+import { baseUrl } from '@/utils/baseUrl';
+
+const API_BASE = `${baseUrl}/api/hero`;
+const UPLOAD_URL = `${baseUrl}/api/image/upload`;
+
+async function apiFetch(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || 'Request failed');
+  }
+  return res.json();
+}
 
 interface HeroContent {
   id?: string;
@@ -44,9 +56,10 @@ export default function HeroManager() {
   const loadHero = async () => {
     try {
       setLoading(true);
-      const data = await heroApi.get();
-      if (data && Object.keys(data).length > 0) {
-        setHero(data);
+      const data = await apiFetch(`${API_BASE}/load-all-heroes`);
+      const heroData = Array.isArray(data) ? data[0] : data;
+      if (heroData && Object.keys(heroData).length > 0) {
+        setHero(heroData);
       }
     } catch (error) {
       toast.error('Failed to load hero content');
@@ -65,9 +78,17 @@ export default function HeroManager() {
       }
 
       if (hero.id) {
-        await heroApi.update(hero.id, hero);
+        await apiFetch(`${API_BASE}/update-hero/${hero.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(hero),
+        });
       } else {
-        await heroApi.create(hero);
+        await apiFetch(`${API_BASE}/create-hero`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(hero),
+        });
       }
 
       toast.success('Hero content updated successfully');
@@ -150,18 +171,28 @@ export default function HeroManager() {
                       accept="image/*"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          setUploading(true);
-                          try {
-                            const response = await uploadApi.uploadImage(file);
-                            setHero({ ...hero, backgroundImage: response.url });
-                            toast.success('Image uploaded successfully');
-                          } catch (error) {
-                            toast.error('Failed to upload image');
-                            console.error(error);
-                          } finally {
-                            setUploading(false);
-                          }
+                        if (!file) return;
+
+                        setUploading(true);
+                        try {
+                          const form = new FormData();
+                          form.append('image', file);
+
+                          const response = await apiFetch(UPLOAD_URL, {
+                            method: 'POST',
+                            body: form,
+                          });
+
+                          setHero({
+                            ...hero,
+                            backgroundImage: response.imageUrl || response.url || '',
+                          });
+                          toast.success('Image uploaded successfully');
+                        } catch (error) {
+                          toast.error('Failed to upload image');
+                          console.error(error);
+                        } finally {
+                          setUploading(false);
                         }
                       }}
                       disabled={uploading}

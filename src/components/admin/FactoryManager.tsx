@@ -11,7 +11,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-//import { factoryApi, uploadApi } from '@/services/api';
 import { toast } from 'sonner';
 import { Edit, Upload } from 'lucide-react';
 import { baseUrl } from '@/utils/baseUrl';
@@ -21,6 +20,9 @@ interface FactoryInfo {
   title: string;
   description: string;
   image?: string;
+  location?: string;
+  yearEstablished?: string | number;
+  employees?: string | number;
 }
 
 const API_BASE = `${baseUrl}/api/poster`;
@@ -176,18 +178,24 @@ export default function FactoryManager() {
                       accept="image/*"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          setUploading(true);
-                          try {
-                            const response = await uploadApi.uploadImage(file);
-                            setFactory({ ...factory, image: response.url });
-                            toast.success('Image uploaded successfully');
-                          } catch (error) {
-                            toast.error('Failed to upload image');
-                            console.error(error);
-                          } finally {
-                            setUploading(false);
-                          }
+                        if (!file) return;
+
+                        const form = new FormData();
+                        form.append('image', file);
+
+                        setUploading(true);
+                        try {
+                          const response = await apiFetch(UPLOAD_URL, {
+                            method: 'POST',
+                            body: form,
+                          });
+                          setFactory({ ...factory, image: response.imageUrl || response.url || '' });
+                          toast.success('Image uploaded successfully');
+                        } catch (error) {
+                          toast.error('Failed to upload image');
+                          console.error(error);
+                        } finally {
+                          setUploading(false);
                         }
                       }}
                       disabled={uploading}

@@ -20,7 +20,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { baseUrl } from '@/utils/baseUrl';
-//import { testimonialApi, uploadApi } from '@/services/api';
 import { toast } from 'sonner';
 import { Trash2, Edit, Plus, Star, Upload } from 'lucide-react';
 

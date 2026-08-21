@@ -19,9 +19,21 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-//import { processApi, uploadApi } from '@/services/api';
 import { toast } from 'sonner';
 import { Trash2, Edit, Plus, GripVertical, Upload } from 'lucide-react';
+import { baseUrl } from '@/utils/baseUrl';
+
+const API_BASE = `${baseUrl}/api/process`;
+const UPLOAD_URL = `${baseUrl}/api/image/upload`;
+
+async function apiFetch(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || 'Request failed');
+  }
+  return res.json();
+}
 
 interface ProcessStep {
   id: string;
@@ -56,7 +68,7 @@ export default function ProcessManager() {
   const loadSteps = async () => {
     try {
       setLoading(true);
-      const data = await processApi.getAll();
+      const data = await apiFetch(`${API_BASE}/load-all-processes`);
       const sorted = (data || []).sort((a: ProcessStep, b: ProcessStep) => a.order - b.order);
       setSteps(sorted);
     } catch (error) {
@@ -81,10 +93,18 @@ export default function ProcessManager() {
       };
 
       if (editingId) {
-        await processApi.update(editingId, dataToSubmit);
+        await apiFetch(`${API_BASE}/update-process/${editingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToSubmit),
+        });
         toast.success('Process step updated successfully');
       } else {
-        await processApi.create(dataToSubmit);
+        await apiFetch(`${API_BASE}/create-process`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToSubmit),
+        });
         toast.success('Process step created successfully');
       }
 
@@ -114,7 +134,9 @@ export default function ProcessManager() {
   const handleDelete = async () => {
     if (!deleteId) return;
     try {
-      await processApi.delete(deleteId);
+      await apiFetch(`${API_BASE}/delete-process/${deleteId}`, {
+        method: 'DELETE',
+      });
       toast.success('Process step deleted successfully');
       setDeleteId(null);
       loadSteps();
@@ -197,18 +219,28 @@ export default function ProcessManager() {
                       accept="image/*"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          setUploading(true);
-                          try {
-                            const response = await uploadApi.uploadImage(file);
-                            setFormData({ ...formData, image: response.url });
-                            toast.success('Image uploaded successfully');
-                          } catch (error) {
-                            toast.error('Failed to upload image');
-                            console.error(error);
-                          } finally {
-                            setUploading(false);
-                          }
+                        if (!file) return;
+
+                        setUploading(true);
+                        try {
+                          const form = new FormData();
+                          form.append('image', file);
+
+                          const response = await apiFetch(UPLOAD_URL, {
+                            method: 'POST',
+                            body: form,
+                          });
+
+                          setFormData({
+                            ...formData,
+                            image: response.imageUrl || response.url || '',
+                          });
+                          toast.success('Image uploaded successfully');
+                        } catch (error) {
+                          toast.error('Failed to upload image');
+                          console.error(error);
+                        } finally {
+                          setUploading(false);
                         }
                       }}
                       disabled={uploading}

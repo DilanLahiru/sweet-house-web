@@ -11,9 +11,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-//import { storyApi, uploadApi } from '@/services/api';
 import { toast } from 'sonner';
 import { Edit, Upload } from 'lucide-react';
+import { baseUrl } from '@/utils/baseUrl';
+
+const API_BASE = `${baseUrl}/api/story`;
+const UPLOAD_URL = `${baseUrl}/api/image/upload`;
+
+async function apiFetch(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || 'Request failed');
+  }
+  return res.json();
+}
 
 interface StoryContent {
   id?: string;
@@ -48,9 +60,10 @@ export default function StoryManager() {
   const loadStory = async () => {
     try {
       setLoading(true);
-      const data = await storyApi.get();
-      if (data && Object.keys(data).length > 0) {
-        setStory(data);
+      const data = await apiFetch(`${API_BASE}/load-all-stories`);
+      const storyData = Array.isArray(data) ? data[0] : data;
+      if (storyData && Object.keys(storyData).length > 0) {
+        setStory(storyData);
       }
     } catch (error) {
       toast.error('Failed to load story');
@@ -69,9 +82,17 @@ export default function StoryManager() {
       }
 
       if (story.id) {
-        await storyApi.update(story.id, story);
+        await apiFetch(`${API_BASE}/update-story/${story.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(story),
+        });
       } else {
-        await storyApi.create(story);
+        await apiFetch(`${API_BASE}/create-story`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(story),
+        });
       }
 
       toast.success('Story updated successfully');
@@ -178,18 +199,28 @@ export default function StoryManager() {
                       accept="image/*"
                       onChange={async (e) => {
                         const file = e.target.files?.[0];
-                        if (file) {
-                          setUploading(true);
-                          try {
-                            const response = await uploadApi.uploadImage(file);
-                            setStory({ ...story, image: response.url });
-                            toast.success('Image uploaded successfully');
-                          } catch (error) {
-                            toast.error('Failed to upload image');
-                            console.error(error);
-                          } finally {
-                            setUploading(false);
-                          }
+                        if (!file) return;
+
+                        setUploading(true);
+                        try {
+                          const form = new FormData();
+                          form.append('image', file);
+
+                          const response = await apiFetch(UPLOAD_URL, {
+                            method: 'POST',
+                            body: form,
+                          });
+
+                          setStory({
+                            ...story,
+                            image: response.imageUrl || response.url || '',
+                          });
+                          toast.success('Image uploaded successfully');
+                        } catch (error) {
+                          toast.error('Failed to upload image');
+                          console.error(error);
+                        } finally {
+                          setUploading(false);
                         }
                       }}
                       disabled={uploading}
