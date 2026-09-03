@@ -1,5 +1,5 @@
 // Define the base URL for the API
-export const baseUrl = "http://192.168.8.101:5000";
+export const baseUrl = import.meta.env.VITE_API_URL;
 
 export const API_PATH = {
   POSTER: {
