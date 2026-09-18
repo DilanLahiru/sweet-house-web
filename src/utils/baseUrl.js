@@ -1,6 +1,12 @@
 // Define the base URL for the API
 export const baseUrl = import.meta.env.VITE_API_URL;
 
+if (!baseUrl) {
+  throw new Error(
+    'VITE_API_URL is not configured. Add it to the GitHub Actions repository variables.'
+  );
+}
+
 export const API_PATH = {
   POSTER: {
     ADD: "/poster/add",
