@@ -30,6 +30,7 @@ jobs:
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: |
+          echo "VITE_API_URL received by build: $VITE_API_URL"
           if [ -z "$VITE_API_URL" ] || [ "$VITE_API_URL" = "undefined" ]; then
             echo "VITE_API_URL is not configured. Add it as a GitHub Actions repository variable."
             exit 1
