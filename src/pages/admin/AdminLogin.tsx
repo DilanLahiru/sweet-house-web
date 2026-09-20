@@ -39,7 +39,13 @@ export default function AdminLogin() {
         return;
       }
 
-      login(data.user, data.token);
+      const authToken = data.token ?? data.accessToken;
+      if (!data.user || !authToken) {
+        toast.error('Login response did not include a valid session');
+        return;
+      }
+
+      login(data.user, authToken);
       toast.success('Welcome back!');
       navigate('/admin');
     } catch {

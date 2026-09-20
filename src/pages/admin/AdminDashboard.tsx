@@ -49,6 +49,7 @@ export default function AdminDashboard() {
     { id: 'testimonials', label: 'Reviews', icon: MessageSquare },
     { id: 'gallery', label: 'Gallery', icon: GalleryHorizontal },
     { id: 'posters', label: 'Posters', icon: FileImage },
+    { id: 'profile', label: 'My Profile', icon: UserCircle },
   ];
 
   return (

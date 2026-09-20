@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { baseUrl, API_PATH } from '@/utils/baseUrl';
 import { toast } from 'sonner';
@@ -9,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { User, Mail, Lock, Eye, EyeOff, Calendar, ShieldCheck } from 'lucide-react';
 
 export default function ProfileManager() {
-  const { user, token, updateUser } = useAuth();
+  const { user, token, updateUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Profile form
   const [profile, setProfile] = useState({ name: user?.name ?? '', email: user?.email ?? '' });
@@ -27,6 +29,19 @@ export default function ProfileManager() {
     Authorization: `Bearer ${token}`,
   };
 
+  async function apiFetch(url: string, options?: RequestInit) {
+    const res = await fetch(url, options);
+    const err = res.ok ? null : await res.json().catch(() => ({ message: res.statusText }));
+    if (!res.ok) {
+      if (res.status === 401) {
+        logout();
+        navigate('/admin/login', { replace: true });
+      }
+      throw new Error(err?.message || 'Request failed');
+    }
+    return res.json();
+  }
+
   const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.name || !profile.email) {
@@ -35,17 +50,21 @@ export default function ProfileManager() {
     }
     setSavingProfile(true);
     try {
-      const res = await fetch(`${baseUrl}${API_PATH.USER.UPDATE}/${user?._id}`, {
+      if (!user?._id || !token) {
+        toast.error('Your session has expired. Please sign in again.');
+        logout();
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+      const data = await apiFetch(`${baseUrl}${API_PATH.USER.UPDATE}/${user?._id}`, {
         method: 'PUT',
         headers: authHeaders,
         body: JSON.stringify(profile),
       });
-      const data = await res.json();
-      if (!res.ok) { toast.error(data.message || 'Failed to update profile'); return; }
       updateUser(data);
       toast.success('Profile updated successfully');
-    } catch {
-      toast.error('Could not connect to the server');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not connect to the server');
     } finally {
       setSavingProfile(false);
     }
@@ -76,7 +95,10 @@ export default function ProfileManager() {
       if (!res.ok) { toast.error(data.message || 'Failed to change password'); return; }
       toast.success('Password changed successfully');
       setPasswords({ oldPassword: '', newPassword: '', confirmPassword: '' });
-    } catch {
+      if (data.message === 'Password updated successfully') {
+        navigate('/admin/login', { replace: true });
+      }
+    } catch (error){
       toast.error('Could not connect to the server');
     } finally {
       setSavingPassword(false);
@@ -100,8 +122,8 @@ export default function ProfileManager() {
                 {user?.name?.charAt(0).toUpperCase() ?? 'A'}
               </span>
             </div>
-            <div className="mb-2">
-              <h3 className="text-xl font-bold text-gray-900">{user?.name}</h3>
+            <div className="mb-5">
+              <h3 className="text-xl font-bold text-gray-900 uppercase">{user?.name}</h3>
               <p className="text-sm text-gray-500">{user?.email}</p>
             </div>
           </div>
