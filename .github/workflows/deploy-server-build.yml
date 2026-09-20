@@ -1,0 +1,72 @@
+name: Deploy and Build on Server
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deployment configuration
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+        run: |
+          if [ -z "$VITE_API_URL" ] || [ "$VITE_API_URL" = "undefined" ]; then
+            echo "VITE_API_URL is not configured as a GitHub repository variable."
+            exit 1
+          fi
+          if [ -z "$SSH_HOST" ] || [ -z "$SSH_USERNAME" ] || [ -z "$SSH_PASSWORD" ]; then
+            echo "SSH_HOST, SSH_USERNAME, and SSH_PASSWORD must be configured as GitHub secrets."
+            exit 1
+          fi
+          echo "VITE_API_URL received by deployment: $VITE_API_URL"
+
+      - name: Prepare application directory
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            mkdir -p /var/www/sweet-house-web
+
+      - name: Copy source to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "*"
+          target: "/var/www/sweet-house-web"
+          overwrite: true
+
+      - name: Create environment and build on server
+        uses: appleboy/ssh-action@v1.2.2
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          envs: VITE_API_URL
+          script: |
+            set -e
+            cd /var/www/sweet-house-web
+            printf 'VITE_API_URL=%s\n' "$VITE_API_URL" > .env
+            npm ci
+            npm run build
+            echo "Server build completed. Nginx can serve /var/www/sweet-house-web/dist."
